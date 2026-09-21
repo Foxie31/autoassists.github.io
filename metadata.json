@@ -1,0 +1,6 @@
+{
+  "name": "AutoAssist",
+  "description": "Machine Learning Based Auto Parts Recommendation and Sales Optimization System with real-time inventory management and demand forecasting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

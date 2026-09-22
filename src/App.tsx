@@ -7,6 +7,7 @@ import { InventoryView } from "./components/InventoryView";
 import { InventoryEditModal } from "./components/InventoryEditModal";
 import { StockInOutModal } from "./components/StockInOutModal";
 import { SalesView } from "./components/SalesView";
+import { ProcessTransactionView } from "./components/ProcessTransactionView";
 import { NewSaleModal } from "./components/NewSaleModal";
 import { ReportsView } from "./components/ReportsView";
 import { SettingsView } from "./components/SettingsView";
@@ -55,6 +56,7 @@ export default function App() {
   const [stockInOutSku, setStockInOutSku] = useState<string | undefined>(undefined);
 
   const [isNewSaleOpen, setIsNewSaleOpen] = useState(false);
+  const [isProcessingSale, setIsProcessingSale] = useState(false);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isMLEngineOpen, setIsMLEngineOpen] = useState(false);
 
@@ -227,7 +229,12 @@ export default function App() {
       {/* Persistent Left Sidebar matching mockups */}
       <Sidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          if (tab !== "sales") {
+            setIsProcessingSale(false);
+          }
+        }}
         currentUserRole={currentUser.role}
         onLogout={handleSignOut}
         onOpenRecommender={() => setIsMLEngineOpen(true)}
@@ -253,7 +260,10 @@ export default function App() {
               onNavigateTab={setActiveTab}
               onQuickRestock={handleOpenStockIn}
               onOpenRecommender={() => setIsMLEngineOpen(true)}
-              onOpenNewSale={() => setIsNewSaleOpen(true)}
+              onOpenNewSale={() => {
+                setActiveTab("sales");
+                setIsProcessingSale(true);
+              }}
             />
           )}
 
@@ -270,16 +280,25 @@ export default function App() {
           )}
 
           {activeTab === "sales" && (
-            <SalesView
-              currentUserRole={currentUser.role}
-              salesPoints={salesPoints}
-              forecastPoints={forecastPoints}
-              inventory={inventory}
-              recentSales={sales}
-              onOpenNewSale={() => setIsNewSaleOpen(true)}
-              onQuickRestock={handleOpenStockIn}
-              onOpenRecommender={() => setIsMLEngineOpen(true)}
-            />
+            isProcessingSale ? (
+              <ProcessTransactionView
+                inventory={inventory}
+                onBack={() => setIsProcessingSale(false)}
+                onCompleteSale={handleCompleteSale}
+                onShowToast={showToast}
+              />
+            ) : (
+              <SalesView
+                currentUserRole={currentUser.role}
+                salesPoints={salesPoints}
+                forecastPoints={forecastPoints}
+                inventory={inventory}
+                recentSales={sales}
+                onOpenNewSale={() => setIsProcessingSale(true)}
+                onQuickRestock={handleOpenStockIn}
+                onOpenRecommender={() => setIsMLEngineOpen(true)}
+              />
+            )
           )}
 
           {activeTab === "reports" && (
